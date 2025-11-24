@@ -1,0 +1,51 @@
+/* style-forma-pagamento.css */
+body {
+  background: #f3f6fa;
+  font-family: "Segoe UI", sans-serif;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  padding: 1.5rem 0;
+  color: #004aad;
+}
+
+.pagamento-box {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.botoes {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  background-color: #004aad;
+  color: white;
+  padding: 0.8rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background-color: #003a8f;
+}
+
+.voltar {
+  display: block;
+  margin-top: 1.5rem;
+  text-decoration: none;
+  color: #004aad;
+}

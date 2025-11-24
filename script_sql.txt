@@ -1,0 +1,159 @@
+DROP DATABASE estadio;
+CREATE DATABASE IF NOT EXISTS estadio;
+USE estadio;
+
+-- Tabela Vaga 
+
+CREATE TABLE IF NOT EXISTS Vaga (
+id_vaga_pk INT AUTO_INCREMENT PRIMARY KEY,
+numero VARCHAR(50), 
+setor VARCHAR(50), 
+status VARCHAR(30) DEFAULT 'livre',
+tipo CHAR(1) NOT NULL DEFAULT 'C'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela Cliente
+CREATE TABLE IF NOT EXISTS Cliente (
+  id_cliente_pk INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(150) NOT NULL,
+  telefone VARCHAR(30),
+  cpf VARCHAR(20) UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela Veiculo
+CREATE TABLE IF NOT EXISTS Veiculo (
+  id_veiculo_pk INT AUTO_INCREMENT PRIMARY KEY,
+  id_cliente_fk INT NOT NULL,
+  placa VARCHAR(20) NOT NULL,
+  marca VARCHAR(80),
+  modelo VARCHAR(80),
+  cor VARCHAR(50),
+  FOREIGN KEY (id_cliente_fk) REFERENCES Cliente(id_cliente_pk)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  UNIQUE KEY placa_unq (placa)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- Tabela Movimentacao
+CREATE TABLE IF NOT EXISTS Movimentacao (
+  id_movimentacao_pk INT AUTO_INCREMENT PRIMARY KEY,
+  id_veiculo_fk INT NOT NULL,
+  id_vaga_fk INT,
+  data_entrada DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  data_saida DATETIME DEFAULT NULL,
+  FOREIGN KEY (id_veiculo_fk) REFERENCES Veiculo(id_veiculo_pk)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  FOREIGN KEY (id_vaga_fk) REFERENCES Vaga(id_vaga_pk)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela Pagamento
+CREATE TABLE IF NOT EXISTS Pagamento (
+  id_pagamento_pk INT AUTO_INCREMENT PRIMARY KEY,
+  id_movimentacao_fk INT NOT NULL,
+  valor DECIMAL(10,2) DEFAULT 0.00,
+  data_pagamento DATETIME DEFAULT NULL,
+  forma_pagamento VARCHAR(50),
+  FOREIGN KEY (id_movimentacao_fk) REFERENCES Movimentacao(id_movimentacao_pk)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela Login
+CREATE TABLE IF NOT EXISTS Login (
+  id_login_pk INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(120) NOT NULL,
+  sobrenome VARCHAR(120),
+  email VARCHAR(200) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO Vaga (numero, setor, status, tipo) VALUES
+('1','A','livre','C'),
+('2','A','livre','M'),
+('3','A','livre','C'),
+('4','A','livre','M'),
+('5','A','livre','C'),
+('6','A','livre','M'),
+('7','A','livre','C'),
+('8','A','livre','M'),
+('9','A','livre','C'),
+('10','A','livre','M'),
+
+('1','B','livre','C'),
+('2','B','livre','M'),
+('3','B','livre','C'),
+('4','B','livre','M'),
+('5','B','livre','C'),
+('6','B','livre','M'),
+('7','B','livre','C'),
+('8','B','livre','M'),
+('9','B','livre','C'),
+('10','B','livre','M'),
+
+('1','C','livre','C'),
+('2','C','livre','M'),
+('3','C','livre','C'),
+('4','C','livre','M'),
+('5','C','livre','C'),
+('6','C','livre','M'),
+('7','C','livre','C'),
+('8','C','livre','M'),
+('9','C','livre','C'),
+('10','C','livre','M'),
+
+('1','D','livre','C'),
+('2','D','livre','M'),
+('3','D','livre','C'),
+('4','D','livre','M'),
+('5','D','livre','C'),
+('6','D','livre','M'),
+('7','D','livre','C'),
+('8','D','livre','M'),
+('9','D','livre','C'),
+('10','D','livre','M'),
+
+('1','E','livre','C'),
+('2','E','livre','M'),
+('3','E','livre','C'),
+('4','E','livre','M'),
+('5','E','livre','C'),
+('6','E','livre','M'),
+('7','E','livre','C'),
+('8','E','livre','M'),
+('9','E','livre','C'),
+('10','E','livre','M'),
+
+('1','F','livre','C'),
+('2','F','livre','M'),
+('3','F','livre','C'),
+('4','F','livre','M'),
+('5','F','livre','C'),
+('6','F','livre','M'),
+('7','F','livre','C'),
+('8','F','livre','M'),
+('9','F','livre','C'),
+('10','F','livre','M');
+
+-- View que facilita as consultas de movimentações, histórico e etc...
+CREATE OR REPLACE VIEW vw_relatorio_movimentacoes AS
+SELECT 
+  m.id_movimentacao_pk,
+  c.id_cliente_pk,
+  CONCAT(c.nome) AS cliente,
+  v.id_veiculo_pk,
+  v.placa,
+  vg.id_vaga_pk,
+  vg.numero AS vaga_numero,
+  vg.setor AS vaga_setor,
+  m.data_entrada,
+  m.data_saida,
+  TIMESTAMPDIFF(MINUTE, m.data_entrada, COALESCE(m.data_saida, NOW())) AS minutos_permanencia
+FROM Movimentacao m
+JOIN Veiculo v ON m.id_veiculo_fk = v.id_veiculo_pk
+JOIN Cliente c ON v.id_cliente_fk = c.id_cliente_pk
+LEFT JOIN Vaga vg ON m.id_vaga_fk = vg.id_vaga_pk;
